@@ -1,0 +1,1 @@
+// Implementa a lógica sequencial

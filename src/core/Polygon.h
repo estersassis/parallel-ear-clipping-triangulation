@@ -1,0 +1,1 @@
+// Gerencia o vetor de vértices, leitura de I/O, e a lógica de atualização da malha.

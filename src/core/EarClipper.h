@@ -1,0 +1,1 @@
+// Interface para o algoritmo de Ear-Clipping

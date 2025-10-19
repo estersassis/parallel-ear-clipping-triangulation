@@ -1,0 +1,1 @@
+// Implementa o modelo de Rounds de Processamento Paralelo com OpenMP

@@ -1,0 +1,1 @@
+// Definição da estrutura básica Vertex
