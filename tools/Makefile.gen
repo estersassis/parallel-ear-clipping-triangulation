@@ -1,0 +1,18 @@
+CXX = g++
+CXXFLAGS = -Wall -std=c++17 -O3
+BUILDDIR = build
+TOOLSDIR = tools
+TARGET_GEN = $(BUILDDIR)/polygon_generator
+
+.PHONY: all clean
+
+all: $(BUILDDIR) $(TARGET_GEN)
+
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
+
+$(TARGET_GEN): $(TOOLSDIR)/PolygonGenerator.cpp
+	$(CXX) $(CXXFLAGS) $< -o $@
+
+clean:
+	rm -f $(TARGET_GEN)
