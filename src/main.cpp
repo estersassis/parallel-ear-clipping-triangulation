@@ -2,11 +2,34 @@
 #include <string>
 #include <chrono>
 #include <memory>
+#include <fstream>
+#include <iomanip>
 #include "core/Polygon.h"
 #include "core/EarClipper.h"
 #include "serial/SequentialClipper.h"
 #include "parallel/ParallelClipper.h"
 
+void log_results_to_csv(const std::string& mode, int N, long long duration_ms, 
+                        int num_rounds, bool success) {
+    
+    std::ofstream csv_file("baseline_results.csv", std::ios::app);
+
+    if (!csv_file.is_open()) {
+        std::cerr << "AVISO: Nao foi possivel abrir/criar baseline_results.csv para log." << std::endl;
+        return;
+    }
+
+    csv_file.seekp(0, std::ios::end);
+    if (csv_file.tellp() == 0) {
+        csv_file << "N;Modo;Tempo_ms;Num_Rounds;Corretude_Sucesso\n";
+    }
+
+    csv_file << N << ";"
+             << mode << ";"
+             << duration_ms << ";"
+             << num_rounds << ";"
+             << (success ? "SIM" : "NAO") << "\n";
+}
 
 void print_usage(const std::string& appName) {
     std::cerr << "Uso: " << appName << " <modo> <arquivo_entrada> <arquivo_saida>" << std::endl;
@@ -64,13 +87,20 @@ int main(int argc, char* argv[]) {
 
     double original_area = polygon.computeArea();
     double triangles_area = polygon.computeTrianglesArea(result_triangles);
+    bool correctness_success = (std::abs(original_area - triangles_area) < 1e-9);
 
-    if (std::abs(original_area - triangles_area) < 1e-9) { 
+    if (correctness_success) { 
         std::cout << "Corretude Geométrica: SUCESSO (Áreas Coincidentes)" << std::endl;
     } else {
         std::cerr << "Corretude Geométrica: FALHA (Áreas Divergentes)" << std::endl;
         std::cerr << "Área Original: " << original_area << ", Área dos Triângulos: " << triangles_area << std::endl;
     }
+
+    log_results_to_csv(mode, 
+                   polygon.getVertices().size(), 
+                   duration_ms.count(),
+                   clipper->getNumRounds(),
+                   correctness_success);
 
     if (!polygon.writeTrianglesToFile(output_file, result_triangles)) {
         std::cerr << "Erro: Falha ao escrever o arquivo de triângulos: " << output_file << std::endl;
