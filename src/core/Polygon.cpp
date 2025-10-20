@@ -73,11 +73,37 @@ void Polygon::updateNeighbors(int prev_idx, int curr_idx, int next_idx) {
     vertices_[next_idx].prev_idx = prev_idx;
 }
 
+/**
+ * @brief Escreve os triângulos gerados no formato de saída (.tri).
+ */
 bool Polygon::writeTrianglesToFile(const std::string& filename, 
                                  const std::vector<Triangle>& triangles) const {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Erro: Não foi possível abrir o arquivo de saída: " << filename << std::endl;
+        return false;
+    }
+
+    file << triangles.size() << "\n";
+
+    for (const auto& t : triangles) {
+        // Formato: p_i1 p_j1 p_k1
+        file << t.v1_idx << " " << t.v2_idx << " " << t.v3_idx << "\n";
+    }
+
     return true;
 }
 
+/**
+ * @brief Calcula a área total somada dos triângulos na malha.
+ * @details Utiliza a função signedArea (que usa crossProduct) para somar as áreas.
+ */
 double Polygon::computeTrianglesArea(const std::vector<Triangle>& triangles) const {
-    return -1.0;
+    double total_area = 0.0;
+    
+    for (const auto& t : triangles) {
+        total_area += std::abs(signedArea(t.v1_idx, t.v2_idx, t.v3_idx));
+    }
+
+    return total_area;
 }
