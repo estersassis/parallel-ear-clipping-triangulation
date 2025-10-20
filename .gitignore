@@ -39,3 +39,12 @@
 
 # debug information files
 *.dwo
+
+# Pasta de build do Makefile
+build/
+
+*.log
+*.out
+
+# Ignora a pasta de configuracoes de workspace do VS Code
+.vscode/
