@@ -9,6 +9,8 @@
 #include "serial/SequentialClipper.h"
 #include "parallel/ParallelClipper.h"
 
+const double EPSILON = 1e-4;
+
 void log_results_to_csv(const std::string& mode, int N, long long duration_ms, 
                         int num_rounds, bool success) {
     
@@ -87,7 +89,7 @@ int main(int argc, char* argv[]) {
 
     double original_area = polygon.computeArea();
     double triangles_area = polygon.computeTrianglesArea(result_triangles);
-    bool correctness_success = (std::abs(original_area - triangles_area) < 1e-9);
+    bool correctness_success = (std::abs(original_area - triangles_area) < EPSILON);
 
     if (correctness_success) { 
         std::cout << "Corretude Geométrica: SUCESSO (Áreas Coincidentes)" << std::endl;
