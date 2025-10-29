@@ -18,6 +18,7 @@ public:
 
     EarClipper(Polygon& poly) : polygon_(poly) {}
     virtual ~EarClipper() = default;
+    int rounds_ = 0;
 
     /**
      * @brief Executa o processo de triangulação no polígono fornecido.
@@ -30,7 +31,11 @@ public:
      * @return int O número de rounds executados.
      */
     virtual int getNumRounds() const {
-        return 1; 
+        return rounds_;
+    }
+
+    virtual void addRound() {
+        rounds_++;
     }
 
 protected:
