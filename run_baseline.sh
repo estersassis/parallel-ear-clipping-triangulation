@@ -34,7 +34,6 @@ for FILE in "${TEST_FILES[@]}"; do
             echo "ERRO CRÍTICO: Execução excedeu o tempo limite ($TIMEOUT_LIMIT). Abortando teste para $FILE."
             # Se o log de tempo não foi escrito, o CSV terá um buraco, o que é um indicador de falha.
             break 
-        fi
     done
     
     echo "--------------------------------------------------------"
