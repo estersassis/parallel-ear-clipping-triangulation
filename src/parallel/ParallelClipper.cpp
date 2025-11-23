@@ -80,13 +80,43 @@ std::vector<Triangle> ParallelClipper::triangulate() {
         std::cout << "DEBUG: " << independent_ears.size() << " orelhas independentes selecionadas para corte." << std::endl;
         
         // --- PASSO 4: CORTE PARALELO---
-        // TODO: Iterar sobre 'independent_ears' em paralelo
-        // e atualizar o polígono (polygon_.updateNeighbors)
-        // ...
+        #pragma omp parallel
+        {
+            // Buffer local para armazenar os triângulos encontrados por esta thread
+            // Isso evita contenção excessiva no vetor global 'result_triangles_'
+            std::vector<Triangle> thread_triangles;
+
+            #pragma omp for
+            for (size_t i = 0; i < independent_ears.size(); ++i) {
+                int ear_idx = independent_ears[i];
+                
+                // Acessa os vizinhos (leitura segura, pois garantimos independência no Passo 3)
+                int prev_idx = vertices[ear_idx].prev_idx;
+                int next_idx = vertices[ear_idx].next_idx;
+
+                // 1. Cria o triângulo e armazena localmente
+                thread_triangles.emplace_back(prev_idx, ear_idx, next_idx);
+
+                // 2. Atualiza a vizinhança no polígono
+                // IMPORTANTE: updateNeighbors decrementa 'active_vertex_count_'.
+                // Como essa variável não é atómica no Polygon.cpp, precisamos de uma região crítica
+                // para evitar Race Conditions no contador. A manipulação de ponteiros seria segura sem lock
+                // devido à independência, mas o contador exige proteção.
+                #pragma omp critical(update_polygon_vars)
+                {
+                    polygon_.updateNeighbors(prev_idx, ear_idx, next_idx);
+                }
+            }
+
+            // Consolida os triângulos desta thread no vetor de resultados global
+            #pragma omp critical(merge_triangles)
+            {
+                result_triangles_.insert(result_triangles_.end(), thread_triangles.begin(), thread_triangles.end());
+            }
+        }
 
         std::cerr << "DEBUG: Fim do round (placeholder break)." << std::endl;
         addRound();
-        break; 
     }
     return result_triangles_;
 }
