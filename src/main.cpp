@@ -12,7 +12,7 @@
 const double EPSILON = 1e-4;
 
 void log_results_to_csv(const std::string& mode, int N, long long duration_ms, 
-                        int num_rounds, bool success) {
+                        int num_rounds, bool success, const std::string& poly_type) {
     
     std::ofstream csv_file("baseline_results.csv", std::ios::app);
 
@@ -23,14 +23,15 @@ void log_results_to_csv(const std::string& mode, int N, long long duration_ms,
 
     csv_file.seekp(0, std::ios::end);
     if (csv_file.tellp() == 0) {
-        csv_file << "N;Modo;Tempo_ms;Num_Rounds;Corretude_Sucesso\n";
+        csv_file << "N;Modo;Tempo_ms;Num_Rounds;Corretude_Sucesso;PolygonType\n";
     }
 
     csv_file << N << ";"
              << mode << ";"
              << duration_ms << ";"
              << num_rounds << ";"
-             << (success ? "SIM" : "NAO") << "\n";
+             << (success ? "SIM" : "NAO") << ";"
+             << poly_type << "\n";
 }
 
 void print_usage(const std::string& appName) {
@@ -98,11 +99,24 @@ int main(int argc, char* argv[]) {
         std::cerr << "Área Original: " << original_area << ", Área dos Triângulos: " << triangles_area << std::endl;
     }
 
+    std::string poly_type = "";
+    if (input_file.find("spiral") != std::string::npos) {
+        poly_type = "spiral";
+    } else if (input_file.find("convex") != std::string::npos) {
+        poly_type = "convex";
+    } else if (input_file.find("star") != std::string::npos) {
+        poly_type = "star";
+    } else {
+        poly_type = "unknown";
+    }
+
     log_results_to_csv(mode, 
-                   polygon.getVertices().size(), 
-                   duration_ms.count(),
-                   clipper->getNumRounds(),
-                   correctness_success);
+        polygon.getVertices().size(), 
+        duration_ms.count(),
+        clipper->getNumRounds(),
+        correctness_success,
+        poly_type
+);
 
     if (!polygon.writeTrianglesToFile(output_file, result_triangles)) {
         std::cerr << "Erro: Falha ao escrever o arquivo de triângulos: " << output_file << std::endl;
