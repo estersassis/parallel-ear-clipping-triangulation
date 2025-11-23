@@ -52,9 +52,32 @@ std::vector<Triangle> ParallelClipper::triangulate() {
         }
 
         // --- PASSO 3: FILTRO DE INDEPENDÊNCIA ---
-        // TODO: Implementar a lógica para filtrar 'candidate_ears'
-        // e gerar 'independent_ears'.
-        // ...
+        std::vector<int> independent_ears;
+        // Vetor auxiliar para marcar vértices envolvidos em cortes neste round.
+        // Se vertices[i] for true, ele é parte de um triângulo (orelha, prev ou next) já selecionado.
+        std::vector<bool> locked_vertices(N, false);
+
+        for (int ear_idx : candidate_ears) {
+            int prev_idx = vertices[ear_idx].prev_idx;
+            int next_idx = vertices[ear_idx].next_idx;
+
+            // Verificação de Conflito:
+            // O triângulo candidato é formado por {prev_idx, ear_idx, next_idx}.
+            // Para garantir independência total (disjunção de vértices), nenhum desses 3
+            // pode ter sido usado por outra orelha selecionada anteriormente.
+            if (!locked_vertices[ear_idx] && !locked_vertices[prev_idx] && !locked_vertices[next_idx]) {
+                
+                // Seleciona esta orelha
+                independent_ears.push_back(ear_idx);
+
+                // Trava a vizinhança para evitar que vizinhos sejam selecionados neste round
+                locked_vertices[ear_idx] = true;
+                locked_vertices[prev_idx] = true;
+                locked_vertices[next_idx] = true;
+            }
+        }
+
+        std::cout << "DEBUG: " << independent_ears.size() << " orelhas independentes selecionadas para corte." << std::endl;
         
         // --- PASSO 4: CORTE PARALELO---
         // TODO: Iterar sobre 'independent_ears' em paralelo
