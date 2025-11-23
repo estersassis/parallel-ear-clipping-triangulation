@@ -61,8 +61,8 @@ namespace Geometry {
             if (isPointInTriangle(prev, curr, next, v)) {
                 return false;
             }
-
-            return true;
         }
+
+        return true;
     }
 } // namespace Geometry
