@@ -115,5 +115,30 @@ std::vector<Triangle> ParallelClipper::triangulate() {
         std::cerr << "DEBUG: Fim do round (placeholder break)." << std::endl;
         addRound();
     }
+
+    // Triângulo final
+    if (polygon_.getActiveVertexCount() == 3) {
+        std::vector<Vertex>& v = polygon_.getVertices();
+        int idx = -1;
+        
+        // Encontra o primeiro vértice ativo
+        for(size_t i = 0; i < v.size(); ++i) {
+            if(v[i].is_active) {
+                idx = i;
+                break;
+            }
+        }
+        
+        if (idx != -1) {
+            int v1 = idx;
+            int v2 = v[v1].next_idx;
+            int v3 = v[v2].next_idx;
+            
+            result_triangles_.emplace_back(v[v1].original_index, 
+                                        v[v2].original_index, 
+                                        v[v3].original_index);
+        }
+    }
+
     return result_triangles_;
 }
