@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <atomic>
 #include "Vertex.h"
 #include "Triangle.h"
 
@@ -25,14 +26,14 @@ public:
 
     // Métodos de acesso (para serem usados pelos Clippers)
     std::vector<Vertex>& getVertices() { return vertices_; }
-    int getActiveVertexCount() const { return active_vertex_count_; }
+    int getActiveVertexCount() const { return active_vertex_count_.load(std::memory_order_relaxed); }
 
     // Método de atualização de vizinhança (Sequencial - será estendido para Lock-Free no paralelo)
     void updateNeighbors(int prev_idx, int curr_idx, int next_idx);
     
 private:
     std::vector<Vertex> vertices_;
-    int active_vertex_count_ = 0; 
+    std::atomic<int> active_vertex_count_ = 0;
 
     // Helper functions (e.g., para cálculo de área)
     double signedArea(int i, int j, int k) const; 

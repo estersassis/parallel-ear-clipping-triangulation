@@ -64,13 +64,11 @@ double Polygon::computeArea() const {
 }
 
 
-void Polygon::updateNeighbors(int prev_idx, int curr_idx, int next_idx) {
-    active_vertex_count_--; 
-    
+void Polygon::updateNeighbors(int prev_idx, int curr_idx, int next_idx) {    
     vertices_[curr_idx].is_active = false; 
-
     vertices_[prev_idx].next_idx = next_idx;
     vertices_[next_idx].prev_idx = prev_idx;
+    active_vertex_count_.fetch_sub(1, std::memory_order_relaxed);
 }
 
 /**

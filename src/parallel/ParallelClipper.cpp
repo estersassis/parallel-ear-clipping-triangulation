@@ -102,10 +102,7 @@ std::vector<Triangle> ParallelClipper::triangulate() {
                 // Como essa variável não é atómica no Polygon.cpp, precisamos de uma região crítica
                 // para evitar Race Conditions no contador. A manipulação de ponteiros seria segura sem lock
                 // devido à independência, mas o contador exige proteção.
-                #pragma omp critical(update_polygon_vars)
-                {
-                    polygon_.updateNeighbors(prev_idx, ear_idx, next_idx);
-                }
+                polygon_.updateNeighbors(prev_idx, ear_idx, next_idx);
             }
 
             // Consolida os triângulos desta thread no vetor de resultados global
